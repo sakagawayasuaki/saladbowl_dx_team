@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -15,82 +16,47 @@ from sqlalchemy.exc import NoResultFound
 # from models import products
 # from routers import product_router, purchase_router
 # from . import crud_products, models, database
-# import crud_products
+import crud_products
 from models import models
+# from schemas import schemas
+import databese
+
 
 app = FastAPI()
 
-# models.Base.metadata.create_all(bind=database.engine)
+models.Base.metadata.create_all(bind=databese.engine)
 
-# 環境変数の読み込み
-load_dotenv("../../../.env")
-HOST = os.environ.get("HOST_NAME") #ホスト名
-USN = os.environ.get("USER_NAME") #ユーザー名
-PWD = os.environ.get("PASSWORD") #パスワード
-DSN = os.environ.get("DB_NAME") #データベース名(product)
-DATABASE_URL = f'mysql+mysqlconnector://{USN}:{PWD}@{HOST}/{DSN}'
-# engineの設定
-engine = create_engine(DATABASE_URL)
-# セッションの作成
-db_session = scoped_session(
-  sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-  )
-)
-# テーブルを作成する
-# Base = declarative_base()
-# Base.query  = db_session.query_property()
-
-# # CORSミドルウェアの設定
-# origins = [
-#     "http://localhost:3000",  # Reactがデフォルトで使用するポート
-#     "your-production-frontend-url.com",# 実際の運用時には、フロントエンドのデプロイ先のURLも追加する必要があります。
-# ]
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# app.include_router(products.router, prefix="/products", tags=["products"])
-# app.include_router(purchase.router, prefix="/purchase", tags=["purchase"])
-
+# Dependency
+def get_db():
+    db = databese.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+        
 #テスト用
 @app.get("/")
 def read_root():
-    db = db_session.query(models.Product).all()
-    code_list =[]
-    for row in db:
-    # カラムを指定してデータを取得する
-        code_list.append(row.prd_cd)
-    return {"code": code_list}
+    return {"code": "Success"}
 
 #商品コードをクエリとして受け取り、該当の商品情報を返す
 @app.get("/product/")
-def search_product_by_code(code: str):
-    product = db_session.query(models.Product).filter(models.Product.prd_cd == code).first()
+async def read_product_by_code(code: str,db: Session = Depends(get_db)):
+    product = crud_products.get_product_by_code(db, code)
     return product
-    # product = crud_products.get_product_by_code(db_session, code)
-    # if not product:
-    #     return None  
     
 
-# #購入情報の受け取りと購入処理の実行
-# @app.post("/purchase/")
-# def purchase(
-#     emp_cd: str,
-#     store_cd: str,
-#     pos_no: str,
-#     product_list: list[dict],
-#     db: Session = Depends(database.get_db)
-# ):
-#     # 取引テーブルへの登録
+#購入情報の受け取りと購入処理の実行
+# @app.post("/purchase/",response_model=schemas.Booking)
+# def purchase(buy_data: schemas.TransactionCreate):
+#     # 引数：レジ担当者コード、店舗コード、POS機ID、[商品一意キー,商品コード,商品名称,商品単価]のリスト
+
+#     # 取引テーブルのモデル作成（取引キー、日時、レジ担当者コード、店舗コード、POSID、合計金額
+
+#     # 取引テーブルへの登録（CREATE)
 #     trd_id = crud_products.create_transaction(db, emp_cd, store_cd, pos_no)
+    
+#     # 取引明細テーブルのモデル作成（取引キー、取引明細キー、商品きー、商品コード、商品名称、商品単価
 
 #     # 取引明細への登録
 #     for product in product_list:
