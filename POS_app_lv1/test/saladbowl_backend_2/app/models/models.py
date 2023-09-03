@@ -29,7 +29,7 @@ class Product(Base):
 #     # リレーションシップ定義: 取引明細への参照
 #     details = relationship("TransactionDetail", backref="transaction")
 
-# #取引明細テーブル
+# # #取引明細テーブル
 # class TransactionDetail(Base):
 #     __tablename__ = "transaction_details"
 
