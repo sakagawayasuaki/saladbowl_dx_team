@@ -9,7 +9,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.exc import NoResultFound
 # from sqlalchemy.orm import Session
-# from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+from typing import List
 # import json
 
 # from database import base_class #SessionLocal, engine, Base
@@ -18,13 +19,26 @@ from sqlalchemy.exc import NoResultFound
 # from . import crud_products, models, database
 import crud_products
 from models import models
-# from schemas import schemas
+from schemas import schemas
 import databese
 
 
 app = FastAPI()
 
 models.Base.metadata.create_all(bind=databese.engine)
+
+# CORSミドルウェアの設定
+origins = [
+    "http://localhost:3002",  # Reactがデフォルトで使用するポート
+    "your-production-frontend-url.com",# 実際の運用時には、フロントエンドのデプロイ先のURLも追加する必要があります。
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Dependency
 def get_db():
@@ -47,28 +61,27 @@ async def read_product_by_code(code: str,db: Session = Depends(get_db)):
     
 
 #購入情報の受け取りと購入処理の実行
-# @app.post("/purchase/",response_model=schemas.Booking)
-# def purchase(buy_data: schemas.TransactionCreate):
-#     # 引数：レジ担当者コード、店舗コード、POS機ID、[商品一意キー,商品コード,商品名称,商品単価]のリスト
+@app.post("/purchase/",response_model=schemas.TransactionResult)
+def purchase(products: List[schemas.Product], db: Session = Depends(get_db)):
+    # 1-1：取引テーブルへの初期登録（CREATE)  戻り値：取引一意キー（trd_id）
+    trd_id = crud_products.create_init_transaction(db=db)
+    # 1-2：取引明細テーブルへの登録（繰り返し処理？）
+    # 引数：取引キー、商品キー、商品コード、商品名称、商品単価
+    # 戻り値：商品単価
+    total_amount = 0
+    for product in products:
+        # 取引明細テーブルへの登録
+        price = crud_products.create_transaction_detail(db=db, trd_id = trd_id, product=product)
+        # 1-3：合計の計算
+        total_amount += price
 
-#     # 取引テーブルのモデル作成（取引キー、日時、レジ担当者コード、店舗コード、POSID、合計金額
-
-#     # 取引テーブルへの登録（CREATE)
-#     trd_id = crud_products.create_transaction(db, emp_cd, store_cd, pos_no)
-    
-#     # 取引明細テーブルのモデル作成（取引キー、取引明細キー、商品きー、商品コード、商品名称、商品単価
-
-#     # 取引明細への登録
-#     for product in product_list:
-#         crud_products.create_transaction_detail(db, trd_id, product)
-
-#     # 合計の計算
-#     total_amount = crud_products.calculate_total_amount(db, trd_id)
-
-#     # 取引テーブルの更新
-#     crud_products.update_transaction(db, trd_id, total_amount["total_amount"])
-
-#     return {"success": True, "total_amount": total_amount["total_amount"]}
+    # 1-4：取引テーブルの更新、戻り値：成否
+    check = crud_products.update_transaction(db=db, trd_id = trd_id, total_amt=total_amount)
+    if check == True:
+        print(total_amount)
+        return {"check": check, "total_amount": total_amount}
+    else:
+        return {"check": check, "total_amount": None}
 
 
 # @app.get("/transaction/total_amount/{trd_id}")
