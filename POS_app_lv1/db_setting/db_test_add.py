@@ -72,7 +72,7 @@ print("Finished dropping table (if existed).")
 cursor.execute('''
   CREATE TABLE deal (
     trd_id INT AUTO_INCREMENT,
-    detetime timestamp,
+    datetime timestamp,
     emp_cd CHAR(10),
     store_cd CHAR(5),
     pos_no CHAR(3),
