@@ -1,0 +1,49 @@
+.Container_cartItems {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  min-width: 450px;
+}
+
+.Container_cartItems > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #CCCCCC; 
+}
+
+.Container_cartItems > div:first-child {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Container_cartItems h5 {
+  text-align: left;
+  margin-top: 16px;
+}
+
+.Container_cartItems p {
+  margin: 0;
+  padding: 4px;
+}
+
+.Container_cartItems > div:not(:last-child) {
+  margin-bottom: 8px;
+}
+
+.Container_cartItems p {
+  flex: 1;
+  text-align: left;
+}
+
+.Container_cartItems p:first-child {
+  flex: 2.5;
+  text-align: left;
+}
+
+.Container_cartItems p:last-child {
+  text-align: right;
+}
