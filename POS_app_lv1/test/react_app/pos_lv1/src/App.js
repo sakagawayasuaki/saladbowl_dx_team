@@ -42,8 +42,9 @@ function App() {
     const codeToSearch = inputCode;
 
     // FastAPIのエンドポイントURLを設定
-    const apiUrl = `http://localhost:8000/product/?code=${codeToSearch}`; // FastAPIのURLを適切に設定してください
-  
+    const apiUrl = `https://webapp-class1to4-6.azurewebsites.net/product/?code=${codeToSearch}`; // FastAPIのURLを適切に設定してください
+    // const apiUrl = `http://127.0.0.1:8000/product/?code=${codeToSearch}`;
+    
     // axiosを使用してFastAPIにリクエストを送信
     axios.get(apiUrl)
       .then(response => {
@@ -94,7 +95,8 @@ function App() {
   };
 
   // FastAPIの購入時のPOSTエンドポイントURLを設定
-  const api_postUrl = "http://localhost:8000/purchase/"; // FastAPIのURLを適切に設定してください
+  const api_postUrl = "https://webapp-class1to4-6.azurewebsites.net/purchase/"; // FastAPIのURLを適切に設定してください
+  // const api_postUrl = "http://127.0.0.1:8000/purchase/";
   // 「購入ボタン」を押したときの関数
   const handlePurchase = () => {
     // ポスト処理　True:モーダル表示、False:エラー処理

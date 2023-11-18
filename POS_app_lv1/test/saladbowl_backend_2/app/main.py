@@ -29,7 +29,7 @@ models.Base.metadata.create_all(bind=databese.engine)
 
 # CORSミドルウェアの設定
 origins = [
-    "http://localhost:3002",  # Reactがデフォルトで使用するポート
+    "http://localhost:3004",  # Reactがデフォルトで使用するポート
     "your-production-frontend-url.com",# 実際の運用時には、フロントエンドのデプロイ先のURLも追加する必要があります。
 ]
 app.add_middleware(

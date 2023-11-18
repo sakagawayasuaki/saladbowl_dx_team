@@ -6,8 +6,6 @@ from sqlalchemy import Column, Integer, String
 import os
 from dotenv import load_dotenv
 
-import pandas as pd
-
 # 環境変数の読み込み
 load_dotenv("../.env")
 HOST = os.environ.get("HOST_NAME") #ホスト名
@@ -44,6 +42,7 @@ class Product(Base):
 
 # DBにあるデータ(商品コード)を全件表示
 db = db_session.query(Product).all()
+print(db)
 for row in db:
   # カラムを指定してデータを取得する
   print(row.prd_cd)

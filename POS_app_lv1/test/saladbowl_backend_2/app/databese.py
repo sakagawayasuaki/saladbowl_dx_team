@@ -12,6 +12,7 @@ PWD = os.environ.get("PASSWORD") #パスワード
 DSN = os.environ.get("DB_NAME") #データベース名(product)
 DATABASE_URL = f'mysql+mysqlconnector://{USN}:{PWD}@{HOST}/{DSN}'
 
+
 # engineの設定
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
